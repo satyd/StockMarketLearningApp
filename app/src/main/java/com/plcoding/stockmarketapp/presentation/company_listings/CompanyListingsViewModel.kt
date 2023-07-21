@@ -22,6 +22,10 @@ class CompanyListingsViewModel @Inject constructor(
 
     private var searchJob: Job? = null
 
+    init {
+        getCompanyListings()
+    }
+
     fun onEvent(event: CompanyListingsEvent) {
         when (event) {
             is CompanyListingsEvent.Refresh -> {
@@ -44,21 +48,21 @@ class CompanyListingsViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             repository.getCompanyListings(fetchFromRemote, query).collect { result ->
-                    when (result) {
-                        is Resource.Success -> {
-                            result.data?.let {
-                                state = state.copy(
-                                    companies = it
-                                )
-                            }
-                        }
-
-                        is Resource.Error -> {}
-                        is Resource.Loading -> {
-                            state = state.copy(isLoading = result.isLoading)
+                when (result) {
+                    is Resource.Success -> {
+                        result.data?.let {
+                            state = state.copy(
+                                companies = it
+                            )
                         }
                     }
+
+                    is Resource.Error -> {}
+                    is Resource.Loading -> {
+                        state = state.copy(isLoading = result.isLoading)
+                    }
                 }
+            }
         }
     }
 }
